@@ -1,0 +1,19 @@
+.main {
+    min-height: 60px;
+    border: 1px transparent solid;
+    color: var(--hint-color);
+    user-select: none;
+}
+
+.active {
+    background: var(--primary-color);
+    color: var(--text-secondary-color)
+}
+
+@media (pointer: fine){
+    .main:hover {
+        cursor: pointer;
+        background: var(--primary-color);
+        color: var(--text-secondary-color)
+    }
+}

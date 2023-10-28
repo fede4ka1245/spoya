@@ -1,0 +1,63 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, body {
+    overflow: hidden;
+    background: var(--secondary-bg-color);
+}
+
+:root {
+    --primary-color: #8774e1;
+    --text-primary-color: #8774e1;
+    --bg-color: rgb(33,33,33);
+    --secondary-bg-color: #2b2d31;
+    --text-secondary-color: #d9d9d9;
+    --hint-color: rgba(115, 115, 115, 0.8);
+
+    --map-no-data-color: hsla(0,0%,60.8%,.49019607843137253);
+    --map-success-color: rgba(130,217,141, 1);
+    --map-warn-color-1: #fff113;
+    --map-warn-color-2: #ff9200;
+    --map-danger-color: #f44336;
+
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 32px;
+
+    --font-size-sm: 18px;
+    --font-size-md: 26px;
+    --font-size-lg: 32px;
+
+    --border-radius-sm: 8px;
+    --border-radius-md: 10px;
+    --border-radius-lg: 20px;
+
+    --element-border: 1px solid var(--hint-color);
+
+    --header-height: 60px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hint-color) auto;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--hint-color);
+}

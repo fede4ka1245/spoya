@@ -1,0 +1,14 @@
+.main {
+    user-select: none;
+    animation: opacity ease-in 0.2s;
+}
+
+.main:active {
+   opacity: 0.7;
+}
+
+@media (pointer: fine){
+    .main:hover {
+        cursor: pointer;
+    }
+}

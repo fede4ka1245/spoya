@@ -1,0 +1,34 @@
+.app-container {
+    width: 100vw;
+    overflow-x: hidden;
+    display: flex;
+    height: 100vh;
+}
+
+.app-container-content-1 {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    max-width: calc(100% - 20em);
+}
+
+.app-container-content-2 {
+    width: 20em;
+    height: 100%;
+}
+
+.app-container-map {
+    flex: 1;
+    padding: var(--space-sm);
+}
+
+.app-container-header {
+    position: sticky;
+    height: var(--header-height);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: var(--bg-color);
+    border-bottom: var(--element-border);
+}
