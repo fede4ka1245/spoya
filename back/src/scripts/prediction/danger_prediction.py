@@ -14,7 +14,7 @@ from env import DATABASE
 
 
 def get_respective_weather_df_from_csv():
-    respective_weather_df = pd.read_csv('../../../Данные/Данные по метеостанциям. Соответствие МО.csv')
+    respective_weather_df = pd.read_csv('Данные/Данные по метеостанциям. Соответствие МО.csv')
     respective_weather_df.replace('^\s+', '', regex=True, inplace=True)
     respective_weather_df.replace('\s+$', '', regex=True, inplace=True)
     return respective_weather_df
@@ -29,7 +29,7 @@ def get_respective_weather_df_from_sql():
 
 
 def get_weather_stats_df_from_csv():
-    return pd.read_csv("../.././Данные/Данные по метеостанциям.csv", low_memory=False)
+    return pd.read_csv("Данные/Данные по метеостанциям.csv", low_memory=False)
 
 
 def get_weather_stats_df_from_sql():
@@ -62,7 +62,8 @@ def get_prediction():
                         'ff3', 'N', 'WW', 'W1', 'W2', 'Tn', 'Tx', 'Cl', 'Nh', 'H', 'Cm',
                         'Ch', 'RRR', 'tR', 'E', 'Tg', "E'"]  # 'sss' 'VV'
     cat_features = ['DD', 'N', 'W1', 'W2', 'WW', 'Cl', 'Nh', 'H', 'Cm', 'Ch', 'E', "E'"]
-    inf_columns = ["T", "Td", "P", "Po", "Pa", "U", "DD", "Ff", "ff10", "ff3", "N", "WW", "W1", "W2", "Tn", "Tx", "Cl",
+    inf_columns = ["meteostation", "T", "Td", "P", "Po", "Pa", "U", "DD", "Ff", "ff10", "ff3", "N", "WW", "W1", "W2",
+                   "Tn", "Tx", "Cl",
                    "Nh", "H", "Cm", "Ch", "RRR", "tR", "E", "Tg", "E'", "T_lag0", "T_lag1", "T_lag2", "T_lag3",
                    "T_lag4",
                    "T_lag5", "T_lag6", "T_lag7", "T_lag8", "T_lag9", "Td_lag0", "Td_lag1", "Td_lag2", "Td_lag3",
@@ -104,8 +105,18 @@ def get_prediction():
                    "Tg_lag5",
                    "Tg_lag6", "Tg_lag7", "Tg_lag8", "Tg_lag9", "E'_lag0", "E'_lag1", "E'_lag2", "E'_lag3", "E'_lag4",
                    "E'_lag5", "E'_lag6", "E'_lag7", "E'_lag8", "E'_lag9"]
-
-    result_data = dict()
+    label_to_descr = {'ДТП': 'Атмосферное давление, Температура воздуха, Обледенение',
+                      'Опасные природные явления': 'Температура воздуха, Температура точки росы, Атмосферное давление',
+                      'Прочие опасности': 'Минимальная температура, Количество осадков',
+                      'Взрывы/пожары/разрушения': 'Атмосферное давление, Количество осадков, Видимость',
+                      'Аварии с выбросом опасных/токсичных веществ': 'Количество осадков, Атмосферное давление, Облачность',
+                      'ЖКХ': 'Температура, Атмосферное давление, Количество осадков, Облачность'}
+    target_values = ['ДТП',
+                     'Опасные природные явления',
+                     'Прочие опасности',
+                     'Взрывы/пожары/разрушения',
+                     'Аварии с выбросом опасных/токсичных веществ',
+                     'ЖКХ']
 
     timestamps = []
     meteostations = []
@@ -120,31 +131,35 @@ def get_prediction():
                 meteo_df[f"{column}_lag{i}"] = meteo_df[column].shift(i)
         meteo_df = meteo_df.iloc[-8 * 10:]
 
-        timestamps.extend(meteo_df['Местное время'].tolist())
-        meteostations.extend([meteostation] * 80)
-
         cat_features2 = [column for column in meteo_df.columns if
                          any(map(lambda x: column.startswith(x), cat_features))]
         for cat_feature in cat_features2:
             meteo_df[cat_feature] = meteo_df[cat_feature].fillna('')
             meteo_df[cat_feature] = meteo_df[cat_feature].astype('category')
 
-        X = meteo_df.drop(columns=['Местное время', 'meteostation'])
+        X = meteo_df.drop(columns=['Местное время'])
         X = X[inf_columns]
-        clfs = [CatBoostClassifier().load_model(f"src/models/classificator{i}.cbm", format="cbm") for i in range(5)]
-        predict_matrix = np.array([clf.predict_proba(X) for clf in clfs]).mean(axis=0)
 
-        probs.extend(predict_matrix.max(axis=1))
-        labels.extend(clfs[0].classes_[predict_matrix.argmax(axis=1)])
+        for column in target_values:
+            clfs = [
+                CatBoostClassifier().load_model(f"src/models/{column.replace('/', '_')}_classificator{i}.cbm", format="cbm")
+                for i in range(5)]
 
-        result_data[meteostation] = predict_matrix
+            predict_matrix = np.array([clf.predict_proba(X) for clf in clfs]).mean(axis=0)
+
+            timestamps.extend(meteo_df['Местное время'].tolist())
+            meteostations.extend([meteostation] * 80)
+            probs.extend(predict_matrix.max(axis=1))
+            labels.extend(["Нет события" if value == 'False' else column
+                           for value in clfs[0].classes_[predict_matrix.argmax(axis=1)]])
 
     submit_df = pd.DataFrame()
     submit_df['time'] = timestamps
     submit_df['meteostations'] = meteostations
     submit_df['probs'] = probs
     submit_df['labels'] = labels
-    # submit_df.to_csv("Aboba.csv", index=False)
+    submit_df = submit_df[submit_df['labels'] != 'Нет события']
+    submit_df['description'] = submit_df['labels'].map(label_to_descr)
 
     return edit_submit_df(submit_df)
 
@@ -168,15 +183,13 @@ def add_events_in_db():
     db_session_maker = sessionmaker(bind=engine)
     db_session = db_session_maker()
 
-    Event.__table__.drop(engine)
-    Event.__table__.create(engine)
+    db_session.query(Event).delete()
 
     predictions_df = get_prediction()
     predicted_events = list[Event]()
     for event in predictions_df.values:
-        [datetime, _, probability, event_name, district] = event
-        # print(datetime, type(datetime))
-        predicted_events.append(Event(event=event_name, time=datetime, probability=probability, district=district))
+        [datetime, _, probability, event_name, description, district] = event
+        predicted_events.append(Event(event=event_name, time=datetime, probability=probability, district=district, description=description))
 
     db_session.add_all(predicted_events)
     db_session.commit()

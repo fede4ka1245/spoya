@@ -4,12 +4,12 @@ import {initMap, loadDistrictsEvents} from "../../store";
 import {Grid, Typography} from "@mui/material";
 
 const getColor = (probability) => {
-  if (probability <= 10) {
+  if (probability <= 30) {
     return 'var(--map-success-color)';
-  } else if (probability > 10 && probability <= 20) {
+  } else if (probability > 30 && probability <= 54) {
     return 'var(--map-warn-color-1)';
-  } else if (probability > 20 && probability <= 40) {
-    return 'var(--map-warn-color-1)';
+  } else if (probability > 55 && probability <= 70) {
+    return 'var(--map-warn-color-2)';
   } else {
     return 'var(--map-danger-color)';
   }
