@@ -42,6 +42,8 @@ body, body {
     --element-border: 1px solid var(--hint-color);
 
     --header-height: 60px;
+
+    --mobile-breakpoint: 650px;
 }
 
 * {

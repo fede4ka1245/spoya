@@ -32,3 +32,33 @@
     background: var(--bg-color);
     border-bottom: var(--element-border);
 }
+
+.app-container-header-events-button {
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    margin-right: var(--space-md);
+    margin-left: auto;
+    display: none;
+    color: var(--primary-color);
+    user-select: none;
+    border-radius: var(--border-radius-sm);
+    border: 1px var(--primary-color) solid;
+    padding: 10px;
+}
+
+.app-container-header-events-button:active {
+    opacity: 0.8;
+}
+
+@media screen and (max-width: 650px) {
+    .app-container-header-events-button {
+        display: block;
+    }
+
+    .app-container-content-1 {
+        max-width: 100%;
+    }
+
+    .app-container-content-2 {
+        display: none;
+    }
+}
