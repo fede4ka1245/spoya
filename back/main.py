@@ -20,4 +20,4 @@ if __name__ == "__main__":
     if arguments.predict:
         add_events_in_db()
     if arguments.run or not (arguments.districts or arguments.predict or arguments.run):
-        app.run()
+        app.run(host='0.0.0.0')
