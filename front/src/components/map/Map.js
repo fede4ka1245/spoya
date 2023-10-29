@@ -175,7 +175,7 @@ function MyHint() {
               lineHeight={'16px'}
               color={'var(--text-secondary-color)'}
             >
-              <strong>Описание:</strong> {ctx?.hint?.description}
+              <strong>Признаки:</strong> {ctx?.hint?.description}
             </Typography>
             <Typography
               pt={'var(--space-sm)'}
